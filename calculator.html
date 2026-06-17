@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電卓</title>
+  <style>
+    :root {
+      --page: #071a33;
+      --page-accent: #123766;
+      --card: #0d2749;
+      --screen: #051225;
+      --screen-soft: #14345f;
+      --text: #fff8cf;
+      --button-text: #10213d;
+      --muted: #c9d7ff;
+      --line: #355f96;
+      --number: #ffe66d;
+      --number-hover: #fff08f;
+      --operator: #ff95c2;
+      --operator-hover: #ffafd2;
+      --equals: #ff95c2;
+      --equals-hover: #ffafd2;
+      --clear: #ff95c2;
+      --clear-hover: #ffafd2;
+      --shadow: 0 22px 46px rgba(3, 10, 24, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      color: var(--text);
+      background:
+        linear-gradient(135deg, rgba(255, 230, 109, 0.08) 0 25%, transparent 25% 50%, rgba(255, 149, 194, 0.08) 50% 75%, transparent 75%),
+        linear-gradient(180deg, var(--page), var(--page-accent));
+      background-size: 34px 34px, auto;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .calculator {
+      width: min(100%, 360px);
+      padding: 16px;
+      border: 1px solid rgba(255, 248, 207, 0.18);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .display {
+      min-height: 112px;
+      margin-bottom: 14px;
+      padding: 16px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      color: #fffaf0;
+      background: linear-gradient(180deg, var(--screen-soft), var(--screen));
+      border: 2px solid rgba(255, 230, 109, 0.32);
+    }
+
+    .expression,
+    .result {
+      min-width: 0;
+      text-align: right;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .expression {
+      min-height: 22px;
+      color: rgba(255, 250, 240, 0.72);
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .result {
+      min-height: 44px;
+      font-size: clamp(2rem, 10vw, 2.7rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .pad {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px 10px;
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 0;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 248, 207, 0.24);
+      border-radius: 0;
+      color: var(--button-text);
+      background: var(--number);
+      box-shadow: inset 0 -3px 0 rgba(16, 33, 61, 0.14);
+      cursor: pointer;
+      font: inherit;
+      font-size: 1.15rem;
+      font-weight: 800;
+      clip-path: polygon(50% 0%, 61% 33%, 96% 33%, 68% 53%, 79% 88%, 50% 67%, 21% 88%, 32% 53%, 4% 33%, 39% 33%);
+      transition: transform 0.08s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--number-hover);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #68b9b0;
+      outline-offset: 2px;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 -1px 0 rgba(92, 58, 36, 0.16);
+    }
+
+    .btn-operator {
+      background: var(--operator);
+    }
+
+    .btn-operator:hover {
+      background: var(--operator-hover);
+    }
+
+    .btn-equals {
+      color: var(--button-text);
+      background: var(--equals);
+    }
+
+    .btn-equals:hover {
+      background: var(--equals-hover);
+    }
+
+    .btn-clear {
+      color: var(--button-text);
+      background: var(--clear);
+    }
+
+    .btn-clear:hover {
+      background: var(--clear-hover);
+    }
+
+    .span-two {
+      grid-column: span 2;
+      max-width: 82px;
+      width: 100%;
+      justify-self: center;
+    }
+
+    .history {
+      min-height: 108px;
+      padding: 12px;
+      border: 1px solid rgba(255, 248, 207, 0.18);
+      border-radius: 8px;
+      background: #102f57;
+    }
+
+    .history-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .history-list {
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .history-list li {
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(255, 248, 207, 0.2);
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .history-list li:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .history-empty {
+      color: var(--muted);
+      text-align: left;
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 14px;
+      }
+
+      .calculator {
+        padding: 14px;
+      }
+
+      .pad {
+        gap: 8px;
+      }
+
+      .span-two {
+        max-width: 76px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-label="電卓">
+    <section class="display" aria-live="polite">
+      <div id="expression" class="expression"></div>
+      <div id="result" class="result">0</div>
+    </section>
+
+    <section class="pad" aria-label="計算ボタン">
+      <button class="btn btn-clear span-two" type="button" data-action="clear">C</button>
+      <button class="btn btn-operator" type="button" data-action="operator" data-value="÷">÷</button>
+      <button class="btn btn-operator" type="button" data-action="operator" data-value="×">×</button>
+
+      <button class="btn" type="button" data-action="number" data-value="7">7</button>
+      <button class="btn" type="button" data-action="number" data-value="8">8</button>
+      <button class="btn" type="button" data-action="number" data-value="9">9</button>
+      <button class="btn btn-operator" type="button" data-action="operator" data-value="-">−</button>
+
+      <button class="btn" type="button" data-action="number" data-value="4">4</button>
+      <button class="btn" type="button" data-action="number" data-value="5">5</button>
+      <button class="btn" type="button" data-action="number" data-value="6">6</button>
+      <button class="btn btn-operator" type="button" data-action="operator" data-value="+">+</button>
+
+      <button class="btn" type="button" data-action="number" data-value="1">1</button>
+      <button class="btn" type="button" data-action="number" data-value="2">2</button>
+      <button class="btn" type="button" data-action="number" data-value="3">3</button>
+      <button class="btn btn-equals" type="button" data-action="equals">=</button>
+
+      <button class="btn span-two" type="button" data-action="number" data-value="0">0</button>
+      <button class="btn" type="button" data-action="number" data-value=".">.</button>
+      <button class="btn btn-clear" type="button" data-action="backspace">⌫</button>
+    </section>
+
+    <section class="history" aria-label="計算履歴">
+      <p class="history-title">直近5件</p>
+      <ol id="historyList" class="history-list">
+        <li class="history-empty">まだ履歴はありません</li>
+      </ol>
+    </section>
+  </main>
+
+  <script>
+    const expressionDisplay = document.getElementById("expression");
+    const resultDisplay = document.getElementById("result");
+    const historyList = document.getElementById("historyList");
+    const buttons = document.querySelectorAll("[data-action]");
+
+    let firstNumber = "";
+    let operator = "";
+    let waitingForSecondNumber = false;
+    let shouldResetDisplay = false;
+    let history = [];
+
+    function getDisplayValue() {
+      return resultDisplay.textContent;
+    }
+
+    function setDisplayValue(value) {
+      resultDisplay.textContent = String(value);
+    }
+
+    function formatResult(value) {
+      const rounded = Number.isInteger(value) ? value : Number(value.toFixed(10));
+      const text = String(rounded);
+
+      if (text.length <= 14) {
+        return text;
+      }
+
+      return rounded.toExponential(8).replace(/\.?0+e/, "e");
+    }
+
+    function formatOperator(value) {
+      return value === "-" ? "−" : value;
+    }
+
+    function updateExpression(text = "") {
+      expressionDisplay.textContent = text;
+    }
+
+    function clearAll() {
+      firstNumber = "";
+      operator = "";
+      waitingForSecondNumber = false;
+      shouldResetDisplay = false;
+      setDisplayValue("0");
+      updateExpression();
+    }
+
+    function inputNumber(value) {
+      const current = getDisplayValue();
+      const digitCount = current.replace("-", "").replace(".", "").length;
+
+      if (shouldResetDisplay || waitingForSecondNumber) {
+        setDisplayValue(value === "." ? "0." : value);
+        shouldResetDisplay = false;
+        waitingForSecondNumber = false;
+        return;
+      }
+
+      if (value === "." && current.includes(".")) {
+        return;
+      }
+
+      if (current === "0" && value !== ".") {
+        setDisplayValue(value);
+        return;
+      }
+
+      if (value !== "." && digitCount >= 14) {
+        return;
+      }
+
+      setDisplayValue(current + value);
+    }
+
+    function chooseOperator(nextOperator) {
+      const current = getDisplayValue();
+
+      if (current === "エラー") {
+        clearAll();
+        return;
+      }
+
+      if (operator && !waitingForSecondNumber) {
+        calculate(false);
+      }
+
+      firstNumber = getDisplayValue();
+      operator = nextOperator;
+      waitingForSecondNumber = true;
+      shouldResetDisplay = false;
+      updateExpression(`${firstNumber} ${formatOperator(operator)}`);
+    }
+
+    function addNumbers(a, b) {
+      return a + b;
+    }
+
+    function subtractNumbers(a, b) {
+      return a - b;
+    }
+
+    function multiplyNumbers(a, b) {
+      return a * b;
+    }
+
+    function divideNumbers(a, b) {
+      return a / b;
+    }
+
+    function calculate(rememberHistory = true) {
+      if (!firstNumber || !operator || waitingForSecondNumber) {
+        return;
+      }
+
+      const a = Number(firstNumber);
+      const b = Number(getDisplayValue());
+
+      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+        showError();
+        return;
+      }
+
+      let answer;
+
+      if (operator === "+") {
+        answer = addNumbers(a, b);
+      } else if (operator === "-") {
+        answer = subtractNumbers(a, b);
+      } else if (operator === "×") {
+        answer = multiplyNumbers(a, b);
+      } else if (operator === "÷") {
+        if (b === 0) {
+          showError();
+          return;
+        }
+        answer = divideNumbers(a, b);
+      }
+
+      const fixedAnswer = formatResult(answer);
+      const expressionText = `${firstNumber} ${formatOperator(operator)} ${b} =`;
+
+      setDisplayValue(fixedAnswer);
+      updateExpression(expressionText);
+
+      if (rememberHistory) {
+        addHistory(`${expressionText} ${fixedAnswer}`);
+      }
+
+      firstNumber = String(fixedAnswer);
+      operator = "";
+      waitingForSecondNumber = false;
+      shouldResetDisplay = true;
+    }
+
+    function showError() {
+      setDisplayValue("エラー");
+      updateExpression();
+      firstNumber = "";
+      operator = "";
+      waitingForSecondNumber = false;
+      shouldResetDisplay = true;
+    }
+
+    function backspace() {
+      const current = getDisplayValue();
+
+      if (shouldResetDisplay || current === "エラー") {
+        clearAll();
+        return;
+      }
+
+      setDisplayValue(current.length > 1 ? current.slice(0, -1) : "0");
+    }
+
+    function addHistory(item) {
+      history = [item, ...history].slice(0, 5);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+
+      if (history.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.className = "history-empty";
+        emptyItem.textContent = "まだ履歴はありません";
+        historyList.appendChild(emptyItem);
+        return;
+      }
+
+      history.forEach(function (item) {
+        const listItem = document.createElement("li");
+        listItem.textContent = item;
+        historyList.appendChild(listItem);
+      });
+    }
+
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        const action = button.dataset.action;
+        const value = button.dataset.value;
+
+        if (action === "number") {
+          inputNumber(value);
+        } else if (action === "operator") {
+          chooseOperator(value);
+        } else if (action === "equals") {
+          calculate();
+        } else if (action === "clear") {
+          clearAll();
+        } else if (action === "backspace") {
+          backspace();
+        }
+      });
+    });
+
+    document.addEventListener("keydown", function (event) {
+      const key = event.key;
+
+      if (/^[0-9.]$/.test(key)) {
+        inputNumber(key);
+      } else if (["+", "-", "*", "/"].includes(key)) {
+        chooseOperator(key === "*" ? "×" : key === "/" ? "÷" : key);
+      } else if (key === "Enter" || key === "=") {
+        event.preventDefault();
+        calculate();
+      } else if (key === "Escape" || key.toLowerCase() === "c") {
+        clearAll();
+      } else if (key === "Backspace") {
+        backspace();
+      }
+    });
+
+    clearAll();
+  </script>
+</body>
+</html>
