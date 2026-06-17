@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>首都クイズゲーム</title>
+  <title>クイズゲーム</title>
   <style>
     :root {
-      --color-bg: #edf4f8;
-      --color-card: #ffffff;
-      --color-text: #1f2933;
-      --color-muted: #64748b;
-      --color-primary: #2563eb;
-      --color-primary-hover: #1d4ed8;
-      --color-border: #cbd5e1;
-      --color-input-bg: #f8fafc;
-      --color-success: #15803d;
-      --color-error: #b91c1c;
-      --color-disabled: #94a3b8;
-      --shadow-card: 0 20px 45px rgba(30, 41, 59, 0.14);
+      --bg: #eef1f4;
+      --card: #ffffff;
+      --surface: #f7f8fa;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --primary: #4b5563;
+      --primary-hover: #374151;
+      --primary-text: #ffffff;
+      --success: #166534;
+      --shadow: 0 18px 40px rgba(31, 41, 55, 0.12);
+      --radius: 16px;
     }
 
     * {
@@ -30,209 +30,195 @@
       display: grid;
       place-items: center;
       padding: 24px;
-      background: var(--color-bg);
-      color: var(--color-text);
+      background:
+        radial-gradient(circle at top, rgba(75, 85, 99, 0.08), transparent 34%),
+        var(--bg);
+      color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.6;
     }
 
     .quiz-card {
       width: min(100%, 560px);
-      padding: 28px;
-      border-radius: 8px;
-      background: var(--color-card);
-      box-shadow: var(--shadow-card);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
     }
 
-    .quiz-status {
+    .topbar {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 24px;
-      color: var(--color-muted);
-      font-size: 0.95rem;
-      font-weight: 700;
+      align-items: center;
+      margin-bottom: 18px;
+      font-size: 14px;
+      color: var(--muted);
     }
 
-    .question-area {
-      min-height: 120px;
-      display: grid;
+    .topbar strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .question {
+      margin: 0 0 16px;
+      padding: 18px;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      min-height: 92px;
+      display: flex;
       align-items: center;
-      margin-bottom: 20px;
-      padding: 22px;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      background: var(--color-input-bg);
-      font-size: clamp(1.25rem, 4vw, 1.8rem);
-      font-weight: 800;
-      text-align: center;
     }
 
     .answer-row {
       display: flex;
       gap: 10px;
-      margin-bottom: 14px;
+      align-items: stretch;
     }
 
-    input[type="text"] {
-      width: 100%;
+    .answer-row input {
+      flex: 1;
       min-width: 0;
-      padding: 13px 14px;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      background: var(--color-input-bg);
-      color: var(--color-text);
-      font: inherit;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 14px 16px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
     }
 
-    input[type="text"]:focus {
-      outline: 3px solid rgba(37, 99, 235, 0.22);
-      border-color: var(--color-primary);
+    .answer-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.16);
     }
 
-    button {
-      min-height: 48px;
-      padding: 0 18px;
+    .button {
       border: 0;
-      border-radius: 8px;
-      background: var(--color-primary);
-      color: #ffffff;
-      font: inherit;
-      font-weight: 800;
+      border-radius: 10px;
+      padding: 0 18px;
+      min-height: 48px;
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
+      background: var(--primary);
+      color: var(--primary-text);
+      transition: background-color 0.15s ease, transform 0.15s ease;
       white-space: nowrap;
-      transition: background-color 0.16s ease, transform 0.16s ease;
     }
 
-    button:hover:not(:disabled) {
-      background: var(--color-primary-hover);
-      transform: translateY(-1px);
+    .button:hover:not(:disabled) {
+      background: var(--primary-hover);
     }
 
-    button:disabled,
-    input[type="text"]:disabled {
+    .button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .button:disabled {
       cursor: not-allowed;
-      opacity: 0.7;
+      opacity: 0.6;
     }
 
-    button:disabled {
-      background: var(--color-disabled);
-    }
-
-    .feedback {
-      min-height: 32px;
-      margin-bottom: 18px;
-      font-weight: 800;
-      text-align: center;
-    }
-
-    .feedback.correct {
-      color: var(--color-success);
-    }
-
-    .feedback.incorrect {
-      color: var(--color-error);
-    }
-
-    .control-row {
+    .actions {
       display: flex;
-      justify-content: center;
       gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .status {
+      min-height: 28px;
+      margin-top: 14px;
+      color: var(--success);
+      font-weight: 700;
     }
 
     .hidden {
-      display: none;
-    }
-
-    @media (max-width: 520px) {
-      body {
-        padding: 16px;
-      }
-
-      .quiz-card {
-        padding: 20px;
-      }
-
-      .quiz-status,
-      .answer-row {
-        flex-direction: column;
-      }
-
-      .quiz-status {
-        gap: 4px;
-      }
-
-      button {
-        width: 100%;
-      }
+      display: none !important;
     }
   </style>
 </head>
 <body>
-  <main class="quiz-card" aria-label="首都クイズゲーム">
-    <div class="quiz-status">
-      <div id="questionCount">問題 0 / 3</div>
-      <div id="scoreDisplay">スコア: 0</div>
+  <main class="quiz-card" aria-label="クイズゲーム">
+    <div class="topbar">
+      <div id="progressText">問題 0 / 5</div>
+      <div id="scoreText">スコア: 0</div>
     </div>
 
-    <section id="questionArea" class="question-area" aria-live="polite">
-      スタートボタンを押してください
-    </section>
+    <p id="questionText" class="question">スタートボタンを押して開始してください。</p>
 
     <div class="answer-row">
-      <input id="answerInput" type="text" autocomplete="off" placeholder="答えを入力" disabled>
-      <button id="answerButton" type="button" disabled>回答</button>
+      <input id="answerInput" type="text" placeholder="答えを入力" disabled>
+      <button id="submitButton" class="button hidden" type="button" onclick="submitAnswer()">回答</button>
     </div>
 
-    <div id="feedbackArea" class="feedback" aria-live="polite"></div>
-
-    <div class="control-row">
-      <button id="startButton" type="button">スタート</button>
-      <button id="retryButton" type="button" class="hidden">もう一度</button>
+    <div class="actions">
+      <button id="startButton" class="button" type="button" onclick="startGame()">スタート</button>
+      <button id="resetButton" class="button hidden" type="button" onclick="resetGame()">もう一度</button>
     </div>
+
+    <div id="statusText" class="status" aria-live="polite"></div>
   </main>
 
   <script>
     const questions = [
       { question: "日本の首都は？", answer: "東京" },
       { question: "フランスの首都は？", answer: "パリ" },
-      { question: "アメリカの首都は？", answer: "ワシントン" }
+      { question: "アメリカの首都は？", answer: "ワシントン" },
+      { question: "中国の首都は？", answer: "北京" },
+      { question: "インドの首都は？", answer: "ニューデリー" }
     ];
 
     let currentQuestionIndex = 0;
     let score = 0;
     let isPlaying = false;
 
-    const questionCount = document.getElementById("questionCount");
-    const scoreDisplay = document.getElementById("scoreDisplay");
-    const questionArea = document.getElementById("questionArea");
+    const progressText = document.getElementById("progressText");
+    const scoreText = document.getElementById("scoreText");
+    const questionText = document.getElementById("questionText");
     const answerInput = document.getElementById("answerInput");
-    const answerButton = document.getElementById("answerButton");
-    const feedbackArea = document.getElementById("feedbackArea");
+    const submitButton = document.getElementById("submitButton");
     const startButton = document.getElementById("startButton");
-    const retryButton = document.getElementById("retryButton");
+    const resetButton = document.getElementById("resetButton");
+    const statusText = document.getElementById("statusText");
+
+    function updateHeader() {
+      progressText.textContent = `問題 ${Math.min(currentQuestionIndex + 1, questions.length)} / ${questions.length}`;
+      scoreText.textContent = `スコア: ${score}`;
+    }
 
     function startGame() {
       currentQuestionIndex = 0;
       score = 0;
       isPlaying = true;
 
-      scoreDisplay.textContent = `スコア: ${score}`;
-      feedbackArea.textContent = "";
-      feedbackArea.className = "feedback";
-      answerInput.disabled = false;
-      answerButton.disabled = false;
       startButton.classList.add("hidden");
-      retryButton.classList.add("hidden");
+      resetButton.classList.add("hidden");
+      submitButton.classList.remove("hidden");
+      answerInput.disabled = false;
+      submitButton.disabled = false;
+      answerInput.value = "";
+      statusText.textContent = "";
 
+      updateHeader();
       showQuestion();
+      answerInput.focus();
     }
 
     function showQuestion() {
-      const currentQuestion = questions[currentQuestionIndex];
+      if (!isPlaying || currentQuestionIndex >= questions.length) {
+        return;
+      }
 
-      questionCount.textContent = `問題 ${currentQuestionIndex + 1} / ${questions.length}`;
-      questionArea.textContent = currentQuestion.question;
+      const current = questions[currentQuestionIndex];
+      questionText.textContent = current.question;
+      progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${questions.length}`;
+      scoreText.textContent = `スコア: ${score}`;
       answerInput.value = "";
       answerInput.focus();
     }
@@ -242,20 +228,19 @@
         return;
       }
 
+      const current = questions[currentQuestionIndex];
       const userAnswer = answerInput.value.trim();
-      const correctAnswer = questions[currentQuestionIndex].answer;
+      const correctAnswer = current.answer.trim();
 
       if (userAnswer === correctAnswer) {
         score += 1;
-        feedbackArea.textContent = "正解です！";
-        feedbackArea.className = "feedback correct";
+        statusText.textContent = "正解です。";
       } else {
-        feedbackArea.textContent = `不正解です。正解は「${correctAnswer}」です。`;
-        feedbackArea.className = "feedback incorrect";
+        statusText.textContent = `不正解です。正解は「${current.answer}」です。`;
       }
 
-      scoreDisplay.textContent = `スコア: ${score}`;
       currentQuestionIndex += 1;
+      updateHeader();
 
       if (currentQuestionIndex >= questions.length) {
         finishGame();
@@ -267,26 +252,41 @@
 
     function finishGame() {
       isPlaying = false;
-      questionCount.textContent = `問題 ${questions.length} / ${questions.length}`;
-      questionArea.textContent = `全問終了！ 最終スコア: ${score} / ${questions.length}`;
-      answerInput.value = "";
+      questionText.textContent = `全問終了です。最終スコアは ${score} 点でした。`;
       answerInput.disabled = true;
-      answerButton.disabled = true;
-      retryButton.classList.remove("hidden");
+      submitButton.disabled = true;
+      submitButton.classList.add("hidden");
+      resetButton.classList.remove("hidden");
+      startButton.classList.add("hidden");
+      statusText.textContent = "ゲームを終了しました。";
+      progressText.textContent = `問題 ${questions.length} / ${questions.length}`;
+      scoreText.textContent = `スコア: ${score}`;
     }
 
     function resetGame() {
-      startGame();
+      currentQuestionIndex = 0;
+      score = 0;
+      isPlaying = false;
+
+      answerInput.value = "";
+      answerInput.disabled = true;
+      submitButton.disabled = true;
+      submitButton.classList.add("hidden");
+      resetButton.classList.add("hidden");
+      startButton.classList.remove("hidden");
+      questionText.textContent = "スタートボタンを押して開始してください。";
+      statusText.textContent = "";
+      progressText.textContent = `問題 0 / ${questions.length}`;
+      scoreText.textContent = "スコア: 0";
     }
 
-    startButton.addEventListener("click", startGame);
-    retryButton.addEventListener("click", resetGame);
-    answerButton.addEventListener("click", submitAnswer);
     answerInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !submitButton.disabled && !submitButton.classList.contains("hidden")) {
         submitAnswer();
       }
     });
+
+    resetGame();
   </script>
 </body>
 </html>
